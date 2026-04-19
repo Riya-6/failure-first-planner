@@ -1,0 +1,39 @@
+{
+  "soundwave_outdoor": {
+    "name": "SoundWave Festival 2025",
+    "venue": "Griffith Park Amphitheater",
+    "venue_capacity": 8000,
+    "headliner": "Arctic Monkeys",
+    "supporting_acts": ["Wet Leg", "Black Midi"],
+    "date": "2025-08-15",
+    "is_outdoor": true,
+    "expected_attendance": 7500,
+    "budget_usd": 450000,
+    "city": "Los Angeles",
+    "backup_venue": "Hollywood Bowl (Stage B)"
+  },
+  "club_night_indoor": {
+    "name": "Underground Sessions Vol. 12",
+    "venue": "Fabric",
+    "venue_capacity": 1500,
+    "headliner": "Floating Points",
+    "supporting_acts": ["Overmono"],
+    "date": "2025-09-20",
+    "is_outdoor": false,
+    "expected_attendance": 1400,
+    "budget_usd": 25000,
+    "city": "London"
+  },
+  "small_venue": {
+    "name": "Integration Test Concert",
+    "venue": "Small Club",
+    "venue_capacity": 500,
+    "headliner": "Test Artist",
+    "supporting_acts": [],
+    "date": "2025-10-01",
+    "is_outdoor": false,
+    "expected_attendance": 450,
+    "budget_usd": 15000,
+    "city": "London"
+  }
+}

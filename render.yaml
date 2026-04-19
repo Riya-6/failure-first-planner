@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: failure-first-planner
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn src.api.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false       # set manually in Render dashboard
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: PLANNER_API_KEY
+        sync: false       # set manually in Render dashboard
+      - key: MAX_LOOP_ITERATIONS
+        value: "3"
+      - key: LOG_LEVEL
+        value: INFO

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Failure-First Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 1s linear infinite; }
+  </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans">
+  <div class="max-w-2xl mx-auto px-4 py-12">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h1 class="text-3xl font-bold text-white">Failure-First Planner</h1>
+      <p class="text-gray-400 mt-2 text-sm">Enter your event details and contractors. The AI will surface every possible failure — then build a plan around the people responsible for each one.</p>
+    </div>
+
+    <!-- Form -->
+    <div id="form-view">
+      <form id="event-form" class="space-y-6">
+
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">API Key</label>
+          <input type="text" id="api-key" value=""
+            class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+        </div>
+
+        <!-- Section: Event -->
+        <div>
+          <p class="text-xs text-blue-400 uppercase tracking-wider mb-3 font-semibold">Event Details</p>
+          <div class="space-y-4">
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Event Name *</label>
+                <input type="text" id="name" required placeholder="SoundWave 2026"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">City *</label>
+                <input type="text" id="city" required placeholder="Los Angeles"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+              <div class="col-span-2">
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Venue *</label>
+                <input type="text" id="venue" required placeholder="Griffith Park Amphitheater"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Capacity *</label>
+                <input type="number" id="venue_capacity" required placeholder="8000" min="1"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Headliner *</label>
+                <input type="text" id="headliner" required placeholder="Arctic Monkeys"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Supporting Acts</label>
+                <input type="text" id="supporting_acts" placeholder="Wet Leg, Black Midi"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Date *</label>
+                <input type="date" id="date" required
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Attendance *</label>
+                <input type="number" id="expected_attendance" required placeholder="7500" min="1"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Budget (USD) *</label>
+                <input type="number" id="budget_usd" required placeholder="450000" min="1"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 items-center">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="is_outdoor" class="w-4 h-4 accent-blue-500">
+                <span class="text-sm text-gray-300">Outdoor event</span>
+              </label>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Backup Venue</label>
+                <input type="text" id="backup_venue" placeholder="Hollywood Bowl (optional)"
+                  class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section: Contractors -->
+        <div>
+          <p class="text-xs text-blue-400 uppercase tracking-wider mb-1 font-semibold">Contractors</p>
+          <p class="text-xs text-gray-500 mb-3">Adding contractor names makes failure scenarios and mitigations specific to your event.</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Production Manager</label>
+              <input type="text" id="production_manager" placeholder="e.g. Jane Smith"
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Sound / PA Vendor</label>
+              <input type="text" id="sound_vendor" placeholder="e.g. Rat Sound Systems"
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Stage & Rigging Company</label>
+              <input type="text" id="stage_company" placeholder="e.g. StageCo"
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Security Contractor</label>
+              <input type="text" id="security_company" placeholder="e.g. Showsec"
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Catering Vendor</label>
+              <input type="text" id="catering_vendor" placeholder="e.g. Sodexo Live"
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Medical / First Aid</label>
+              <input type="text" id="medical_provider" placeholder="e.g. St John Ambulance"
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Ticketing Platform</label>
+              <input type="text" id="ticketing_platform" placeholder="e.g. Eventbrite"
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Notes</label>
+          <textarea id="notes" rows="2" placeholder="Any additional context, permits, special requirements..."
+            class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 resize-none"></textarea>
+        </div>
+
+        <button type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded transition-colors text-sm">
+          Generate Plan
+        </button>
+      </form>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading-view" class="hidden text-center py-24">
+      <div class="inline-block w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full spinner mb-6"></div>
+      <p class="text-xl font-semibold text-white mb-2">Planning in progress...</p>
+      <p id="loading-message" class="text-gray-400 text-sm">Queued — waiting to start.</p>
+      <p class="text-gray-600 text-xs mt-3">Usually takes 1–2 minutes</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error-view" class="hidden">
+      <div class="bg-red-900/30 border border-red-700 rounded p-4 mb-6">
+        <p class="text-red-400 font-semibold mb-1 text-sm">Something went wrong</p>
+        <p id="error-message" class="text-red-300 text-sm"></p>
+      </div>
+      <button onclick="showView('form-view')" class="text-blue-400 hover:text-blue-300 text-sm">Try again</button>
+    </div>
+
+    <!-- Result -->
+    <div id="result-view" class="hidden space-y-5">
+
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 id="result-title" class="text-2xl font-bold text-white"></h2>
+          <p id="result-meta" class="text-gray-400 text-xs mt-1"></p>
+        </div>
+        <button onclick="showView('form-view')" class="text-blue-400 hover:text-blue-300 text-sm mt-1 shrink-0 ml-4">Plan another</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-4 gap-3">
+        <div class="bg-gray-800 rounded p-3 text-center">
+          <div id="stat-iterations" class="text-2xl font-bold text-blue-400"></div>
+          <div class="text-xs text-gray-400 mt-1">Iterations</div>
+        </div>
+        <div class="bg-gray-800 rounded p-3 text-center">
+          <div id="stat-failures" class="text-2xl font-bold text-red-400"></div>
+          <div class="text-xs text-gray-400 mt-1">Failures Found</div>
+        </div>
+        <div class="bg-gray-800 rounded p-3 text-center">
+          <div id="stat-timeline" class="text-2xl font-bold text-green-400"></div>
+          <div class="text-xs text-gray-400 mt-1">Timeline Steps</div>
+        </div>
+        <div class="bg-gray-800 rounded p-3 text-center">
+          <div id="stat-risks" class="text-2xl font-bold text-yellow-400"></div>
+          <div class="text-xs text-gray-400 mt-1">Risk Items</div>
+        </div>
+      </div>
+
+      <!-- Evaluation Scores -->
+      <div id="score-section" class="hidden bg-gray-800 rounded p-4">
+        <p class="text-xs text-gray-400 uppercase tracking-wider mb-3">Plan Evaluation</p>
+        <div class="flex items-center gap-4 mb-4">
+          <div id="score-ring" class="relative w-16 h-16 shrink-0">
+            <svg viewBox="0 0 36 36" class="w-16 h-16 -rotate-90">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#374151" stroke-width="3"/>
+              <circle id="score-arc" cx="18" cy="18" r="15.9" fill="none"
+                stroke="#3b82f6" stroke-width="3"
+                stroke-dasharray="0 100" stroke-linecap="round"/>
+            </svg>
+            <span id="score-overall" class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white"></span>
+          </div>
+          <div>
+            <p class="text-white font-semibold text-sm">Overall Score</p>
+            <p class="text-gray-400 text-xs mt-0.5">How sound and actionable the plan is across 4 dimensions</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2" id="score-breakdown"></div>
+      </div>
+
+      <!-- Summary -->
+      <div class="bg-gray-800 rounded p-4">
+        <p class="text-xs text-gray-400 uppercase tracking-wider mb-2">Summary</p>
+        <p id="result-summary" class="text-gray-200 text-sm leading-relaxed"></p>
+      </div>
+
+      <!-- Timeline -->
+      <div class="bg-gray-800 rounded overflow-hidden">
+        <button onclick="toggle('timeline')" class="w-full flex justify-between items-center p-4 hover:bg-gray-700 transition-colors">
+          <span class="font-semibold text-sm text-white">Timeline</span>
+          <span id="timeline-btn" class="text-gray-400 text-xs">+ Show</span>
+        </button>
+        <div id="timeline-body" class="hidden divide-y divide-gray-700 px-4 pb-2"></div>
+      </div>
+
+      <!-- Checkpoints -->
+      <div class="bg-gray-800 rounded overflow-hidden">
+        <button onclick="toggle('checkpoints')" class="w-full flex justify-between items-center p-4 hover:bg-gray-700 transition-colors">
+          <span class="font-semibold text-sm text-white">Go / No-Go Checkpoints</span>
+          <span id="checkpoints-btn" class="text-gray-400 text-xs">+ Show</span>
+        </button>
+        <div id="checkpoints-body" class="hidden divide-y divide-gray-700 px-4 pb-2"></div>
+      </div>
+
+      <!-- Risk Register -->
+      <div class="bg-gray-800 rounded overflow-hidden">
+        <button onclick="toggle('risks')" class="w-full flex justify-between items-center p-4 hover:bg-gray-700 transition-colors">
+          <span class="font-semibold text-sm text-white">Risk Register</span>
+          <span id="risks-btn" class="text-gray-400 text-xs">+ Show</span>
+        </button>
+        <div id="risks-body" class="hidden divide-y divide-gray-700 px-4 pb-2"></div>
+      </div>
+
+      <!-- Failure Scenarios -->
+      <div class="bg-gray-800 rounded overflow-hidden">
+        <button onclick="toggleSection('failures')" class="w-full flex justify-between items-center p-4 text-left hover:bg-gray-700 transition-colors">
+          <span class="font-semibold text-white">Failure Scenarios Surfaced</span>
+          <span id="failures-chevron" class="text-gray-400 text-sm">+ Show</span>
+        </button>
+        <div id="failures-body" class="hidden divide-y divide-gray-700 px-4 pb-2"></div>
+      </div>
+
+      <!-- Backup Options -->
+      <div id="backup-section" class="hidden bg-gray-800 rounded p-4">
+        <p class="text-xs text-gray-400 uppercase tracking-wider mb-3">Backup Options</p>
+        <div id="backup-content" class="text-sm text-gray-200 space-y-1"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const VIEWS = ['form-view', 'loading-view', 'error-view', 'result-view'];
+
+    function showView(id) {
+      VIEWS.forEach(v => document.getElementById(v).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function toggle(name) {
+      const body = document.getElementById(name + '-body');
+      const btn  = document.getElementById(name + '-btn');
+      const hidden = body.classList.toggle('hidden');
+      btn.textContent = hidden ? '+ Show' : '- Hide';
+    }
+
+    function toggleSection(name) {
+      const body = document.getElementById(name + '-body');
+      const chevron = document.getElementById(name + '-chevron');
+      const hidden = body.classList.toggle('hidden');
+      if (chevron) chevron.textContent = hidden ? '+ Show' : '- Hide';
+    }
+
+    const SEVERITY_COLOR = {
+      CRITICAL: 'text-red-400',
+      HIGH: 'text-orange-400',
+      MEDIUM: 'text-yellow-400',
+      LOW: 'text-green-400',
+    };
+
+    function optional(id) {
+      return document.getElementById(id)?.value.trim() || null;
+    }
+
+    document.getElementById('event-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const apiKey = document.getElementById('api-key').value.trim();
+      const actsRaw = document.getElementById('supporting_acts').value.trim();
+
+      const payload = {
+        name:                 document.getElementById('name').value.trim(),
+        venue:                document.getElementById('venue').value.trim(),
+        venue_capacity:       parseInt(document.getElementById('venue_capacity').value),
+        headliner:            document.getElementById('headliner').value.trim(),
+        supporting_acts:      actsRaw ? actsRaw.split(',').map(s => s.trim()).filter(Boolean) : [],
+        date:                 document.getElementById('date').value,
+        is_outdoor:           document.getElementById('is_outdoor').checked,
+        expected_attendance:  parseInt(document.getElementById('expected_attendance').value),
+        budget_usd:           parseFloat(document.getElementById('budget_usd').value),
+        city:                 document.getElementById('city').value.trim(),
+        backup_venue:         optional('backup_venue'),
+        production_manager:   optional('production_manager'),
+        sound_vendor:         optional('sound_vendor'),
+        stage_company:        optional('stage_company'),
+        security_company:     optional('security_company'),
+        catering_vendor:      optional('catering_vendor'),
+        medical_provider:     optional('medical_provider'),
+        ticketing_platform:   optional('ticketing_platform'),
+        notes:                optional('notes'),
+      };
+
+      showView('loading-view');
+
+      try {
+        // Submit job
+        const submitRes = await fetch('/plans/async', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+          body: JSON.stringify(payload),
+        });
+
+        if (!submitRes.ok) {
+          const err = await submitRes.json().catch(() => ({ detail: submitRes.statusText }));
+          const detail = err.detail;
+          if (Array.isArray(detail)) {
+            throw new Error(detail.map(d => `${d.loc?.slice(-1)[0]}: ${d.msg}`).join(', '));
+          }
+          throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+        }
+
+        const { job_id } = await submitRes.json();
+
+        // Poll until done
+        const plan = await pollJob(job_id, apiKey);
+        renderPlan(plan);
+        showView('result-view');
+
+      } catch (err) {
+        document.getElementById('error-message').textContent = err.message;
+        showView('error-view');
+      }
+    });
+
+    async function pollJob(job_id, apiKey, intervalMs = 4000, maxWaitMs = 600000) {
+      const start = Date.now();
+      const msgEl = document.getElementById('loading-message');
+
+      while (Date.now() - start < maxWaitMs) {
+        await new Promise(r => setTimeout(r, intervalMs));
+
+        let res, job;
+        try {
+          res = await fetch(`/jobs/${job_id}`, { headers: { 'X-API-Key': apiKey } });
+          if (!res.ok) {
+            if (msgEl) msgEl.textContent = `Retrying... (server returned ${res.status})`;
+            continue;
+          }
+          job = await res.json();
+        } catch (_) {
+          if (msgEl) msgEl.textContent = 'Network hiccup — retrying...';
+          continue;
+        }
+
+        if (msgEl) msgEl.textContent = job.message || '';
+
+        if (job.status === 'done') {
+          const planRes = await fetch(`/plans/${job.plan_id}`, {
+            headers: { 'X-API-Key': apiKey },
+          });
+          if (!planRes.ok) throw new Error('Plan ready but failed to fetch.');
+          return await planRes.json();
+        }
+
+        if (job.status === 'failed') {
+          throw new Error(job.error || 'Planning job failed.');
+        }
+      }
+      throw new Error('Timed out waiting for plan (> 10 minutes).');
+    }
+
+    function renderPlan(plan) {
+      document.getElementById('result-title').textContent = plan.event_name;
+      document.getElementById('result-meta').textContent =
+        `Plan ID: ${plan.plan_id}  •  ${plan.generated_at?.slice(0, 10) ?? ''}`;
+
+      document.getElementById('stat-iterations').textContent = plan.iterations_taken;
+      document.getElementById('stat-failures').textContent   = plan.total_failures_surfaced;
+      document.getElementById('stat-timeline').textContent   = plan.timeline?.length ?? 0;
+      document.getElementById('stat-risks').textContent      = plan.risk_register?.length ?? 0;
+      document.getElementById('result-summary').textContent  = plan.summary;
+
+      // Timeline — model fields: time, action, owner, contingency
+      const tlBody = document.getElementById('timeline-body');
+      tlBody.innerHTML = (plan.timeline || []).map(e => `
+        <div class="py-3">
+          <div class="flex justify-between items-start gap-4">
+            <span class="text-white text-sm font-medium">${e.action}</span>
+            <span class="text-gray-400 text-xs shrink-0">${e.time}</span>
+          </div>
+          <div class="text-gray-400 text-xs mt-1">${e.owner}</div>
+          ${e.contingency ? `<div class="text-gray-500 text-xs mt-1 italic">Contingency: ${e.contingency}</div>` : ''}
+        </div>`).join('');
+
+      // Checkpoints — model fields: checkpoint, criteria, fallback
+      const cpBody = document.getElementById('checkpoints-body');
+      cpBody.innerHTML = (plan.go_no_go_checkpoints || []).map(c => `
+        <div class="py-3">
+          <span class="text-white text-sm font-medium">${c.checkpoint}</span>
+          <div class="text-gray-400 text-xs mt-1">${c.criteria}</div>
+          <div class="text-gray-500 text-xs mt-1 italic">If fail: ${c.fallback}</div>
+        </div>`).join('');
+
+      // Risk Register — model fields: risk, severity, owner, mitigation
+      const rBody = document.getElementById('risks-body');
+      rBody.innerHTML = (plan.risk_register || []).map(r => `
+        <div class="py-3">
+          <div class="flex justify-between items-start gap-4">
+            <span class="text-white text-sm font-medium">${r.risk}</span>
+            <span class="text-xs shrink-0 ${SEVERITY_COLOR[r.severity?.toUpperCase()] || 'text-gray-400'}">${r.severity}</span>
+          </div>
+          <div class="text-gray-400 text-xs mt-1">Mitigation: ${r.mitigation}</div>
+          <div class="text-gray-500 text-xs mt-1">Owner: ${r.owner}</div>
+        </div>`).join('');
+
+      // Failure Scenarios
+      const fBody = document.getElementById('failures-body');
+      fBody.innerHTML = (plan.failure_scenarios || []).map(f => `
+        <div class="py-3">
+          <div class="flex justify-between items-start gap-4">
+            <span class="text-white text-sm font-medium">${f.title}</span>
+            <span class="text-xs shrink-0 ${SEVERITY_COLOR[f.severity?.toUpperCase()] || 'text-gray-400'}">${f.severity} · ${Math.round((f.probability||0)*100)}%</span>
+          </div>
+          <div class="text-gray-300 text-xs mt-1">${f.description}</div>
+          <div class="text-gray-500 text-xs mt-1">Root cause: ${f.root_cause}</div>
+        </div>`).join('') || '<p class="py-3 text-gray-500 text-sm">No failures surfaced.</p>';
+
+      // Backup Options
+      const b = plan.backup_options;
+      if (b?.venue || b?.headliner || b?.sound_vendor || b?.generator) {
+        document.getElementById('backup-section').classList.remove('hidden');
+        const bc = document.getElementById('backup-content');
+        bc.innerHTML = [
+          b.venue        ? `<p><span class="text-gray-400">Venue:</span> ${b.venue}</p>` : '',
+          b.headliner    ? `<p><span class="text-gray-400">Headliner:</span> ${b.headliner}</p>` : '',
+          b.sound_vendor ? `<p><span class="text-gray-400">Sound vendor:</span> ${b.sound_vendor}</p>` : '',
+          b.generator    ? `<p><span class="text-gray-400">Generator:</span> ${b.generator}</p>` : '',
+        ].join('');
+      }
+
+      // Evaluation Scores
+      const sc = plan.score;
+      if (sc) {
+        document.getElementById('score-section').classList.remove('hidden');
+
+        // Circular arc (circumference of r=15.9 circle ≈ 99.9)
+        const pct = sc.overall;
+        document.getElementById('score-arc').setAttribute('stroke-dasharray', `${pct} 100`);
+        const arcColor = pct >= 75 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        document.getElementById('score-arc').setAttribute('stroke', arcColor);
+        document.getElementById('score-overall').textContent = pct + '%';
+
+        const dims = [
+          { label: 'Critical Resolution',       val: sc.critical_resolution,        tip: 'CRITICAL failures addressed at CRITICAL/HIGH severity in risk register' },
+          { label: 'Severity-Weighted Coverage', val: sc.severity_weighted_coverage, tip: 'Risk register weighted toward the most dangerous failure modes' },
+          { label: 'Owner Specificity',          val: sc.owner_specificity,          tip: 'Timeline & risk entries with a named contractor or person (not generic)' },
+          { label: 'Contingency Depth',          val: sc.contingency_depth,          tip: 'Timeline steps with a real fallback action (not N/A or placeholder)' },
+        ];
+        document.getElementById('score-breakdown').innerHTML = dims.map(d => {
+          const color = d.val >= 75 ? 'bg-green-500' : d.val >= 50 ? 'bg-yellow-500' : 'bg-red-500';
+          return `
+            <div class="bg-gray-700 rounded p-3">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs text-gray-300">${d.label}</span>
+                <span class="text-xs font-semibold text-white">${d.val}%</span>
+              </div>
+              <div class="w-full bg-gray-600 rounded-full h-1.5">
+                <div class="${color} h-1.5 rounded-full" style="width:${d.val}%"></div>
+              </div>
+              <p class="text-gray-500 text-xs mt-1">${d.tip}</p>
+            </div>`;
+        }).join('');
+      }
+    }
+  </script>
+</body>
+</html>
